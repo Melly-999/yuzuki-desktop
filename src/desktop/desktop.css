@@ -1,0 +1,2102 @@
+/* Yuzuki Desktop shell — implements
+   docs/product/YUZUKI_DESKTOP_WORKSPACE_EXPERIENCE_CONTRACT.md and
+   docs/product/YUZUKI_DESKTOP_WORKSPACE_VISUAL_DIRECTION.md.
+
+   Reuses the existing --hermes-color-* tokens from styles.css for Yuzuki
+   Violet (the default — no new values needed, per the visual-direction
+   contract's own decision to relabel the existing palette as-is). Yuzuki
+   Ember's exact values below are copied verbatim from the visual-direction
+   contract §1.1 — do not edit them here without also updating that
+   document. The permission-tier tokens and the assistant/focus-ring token
+   are intentionally NOT overridden under [data-theme="ember"] — they stay
+   identical across both themes by design (contract §1.1). */
+
+.dz-shell[data-theme="ember"] {
+  --hermes-color-canvas-app: #14100d;
+  --hermes-color-canvas-marketing: #1a1512;
+  --hermes-color-surface-base: #201a16;
+  --hermes-color-surface-elevated: #2b241e;
+  --hermes-color-surface-decision: #251e19;
+  --hermes-color-surface-input: #231c17;
+  --hermes-color-text-primary: #f6f3ef;
+  --hermes-color-text-secondary: #cfc7be;
+  --hermes-color-text-muted: #a79e93;
+  --hermes-color-text-disabled: #7a7166;
+  --hermes-color-text-on-accent: #1a1108;
+  --hermes-color-accent-primary: #e8793a;
+  --hermes-color-accent-secondary: #c2571f;
+  --hermes-color-warning: #f2c14e;
+  --hermes-color-error: #f0616b;
+  --hermes-color-unavailable: #9c948a;
+  --dz-success: #8fcb9b;
+  --dz-selection: #9c3d14;
+}
+.dz-shell:not([data-theme="ember"]) {
+  --dz-success: #86efac;
+  --dz-selection: #7c3aed;
+}
+
+.dz-shell {
+  --dz-nav-w: 232px;
+  --dz-rail-w: 320px;
+  --dz-dock-h: 108px;
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--hermes-color-canvas-app);
+  color: var(--hermes-color-text-primary);
+}
+
+.dz-shell[data-layout="companion"] {
+  --dz-nav-w: 84px;
+  --dz-rail-w: 280px;
+  --dz-dock-h: 72px;
+}
+.dz-shell[data-layout="focus"] {
+  --dz-nav-w: 72px;
+  --dz-rail-w: 0px;
+  --dz-dock-h: 0px;
+}
+.dz-shell[data-layout="focus"] .dz-rail,
+.dz-shell[data-layout="focus"] .dz-dock {
+  display: none;
+}
+.dz-shell[data-layout="review"] {
+  --dz-nav-w: 88px;
+  --dz-rail-w: 368px;
+}
+.dz-shell[data-layout="companion"] .dz-nav-label,
+.dz-shell[data-layout="focus"] .dz-nav-label,
+.dz-shell[data-layout="review"] .dz-nav-label {
+  display: none;
+}
+.dz-shell[data-layout="companion"] .dz-nav,
+.dz-shell[data-layout="focus"] .dz-nav,
+.dz-shell[data-layout="review"] .dz-nav {
+  align-items: center;
+}
+.dz-shell[data-layout="companion"] .dz-nav-item,
+.dz-shell[data-layout="focus"] .dz-nav-item,
+.dz-shell[data-layout="review"] .dz-nav-item,
+.dz-shell[data-layout="companion"] .dz-new-conversation,
+.dz-shell[data-layout="focus"] .dz-new-conversation,
+.dz-shell[data-layout="review"] .dz-new-conversation {
+  justify-content: center;
+  width: 40px;
+  padding: 8px;
+}
+.dz-shell[data-layout="companion"] .dz-nav-section-title,
+.dz-shell[data-layout="focus"] .dz-nav-section-title,
+.dz-shell[data-layout="review"] .dz-sessions {
+  display: none;
+}
+
+/* --- Top bar --- */
+
+.dz-topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-base);
+}
+.dz-topbar-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.dz-topbar-mark {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 7px;
+  background: linear-gradient(155deg, var(--hermes-color-accent-primary), var(--hermes-color-accent-secondary));
+}
+.dz-topbar-name {
+  font-weight: 750;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.dz-topbar-divider {
+  color: var(--hermes-color-text-disabled);
+}
+.dz-topbar-session {
+  color: var(--hermes-color-text-secondary);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.dz-segment {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--hermes-color-surface-elevated);
+}
+.dz-segment-btn {
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-text-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 7px;
+}
+.dz-segment-btn.is-active {
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+}
+.dz-theme-dot {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+.dz-theme-dot-violet {
+  background: radial-gradient(circle at 35% 30%, #f472d0, #1a1025 75%);
+}
+.dz-theme-dot-ember {
+  background: radial-gradient(circle at 35% 30%, #e8793a, #14100d 75%);
+}
+.dz-theme-dot.is-active {
+  border-color: var(--hermes-color-focus-ring);
+}
+.dz-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: transparent;
+  color: var(--hermes-color-text-secondary);
+}
+.dz-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Body grid --- */
+
+.dz-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--dz-nav-w) 1fr var(--dz-rail-w);
+  transition: grid-template-columns var(--hermes-motion-deliberate) var(--hermes-ease-standard);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dz-body {
+    transition: none;
+  }
+}
+
+/* --- Left nav (Zone A) --- */
+
+.dz-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 10px;
+  overflow-y: auto;
+  border-right: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-base);
+}
+.dz-new-conversation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+.dz-new-conversation svg {
+  width: 16px;
+  height: 16px;
+}
+.dz-new-conversation:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dz-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+}
+.dz-sessions {
+  overflow-y: auto;
+}
+.dz-nav-section-title {
+  margin: 6px 8px 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-text-secondary);
+  font-size: 13px;
+  text-align: left;
+}
+.dz-nav-item:hover {
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-primary);
+}
+.dz-nav-item.is-active {
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-primary);
+  box-shadow: inset 2px 0 0 var(--hermes-color-accent-primary);
+}
+.dz-nav-icon {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+.dz-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.dz-session-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+.dz-session-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-session-meta {
+  font-size: 10.5px;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-nav-note {
+  padding: 8px;
+  font-size: 12px;
+  color: var(--hermes-color-text-muted);
+  line-height: 1.5;
+}
+.dz-nav-note code {
+  background: var(--hermes-color-surface-elevated);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.dz-nav-note-unavailable {
+  color: var(--hermes-color-warning);
+}
+.dz-nav-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 8px 2px;
+}
+.dz-nav-section-header .dz-nav-section-title {
+  margin: 0;
+}
+.dz-nav-archived-toggle {
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-text-disabled);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  padding: 0;
+}
+.dz-nav-archived-toggle:hover {
+  color: var(--hermes-color-text-secondary);
+}
+.dz-session-row {
+  display: flex;
+  flex-direction: column;
+}
+.dz-session-row.is-archived .dz-session-item {
+  opacity: 0.65;
+}
+.dz-session-actions {
+  display: flex;
+  gap: 4px;
+  padding: 0 8px 6px 33px;
+}
+.dz-session-action {
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-text-disabled);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.dz-session-action:hover {
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-secondary);
+}
+.dz-session-action-destructive:hover {
+  color: var(--hermes-color-warning);
+}
+.dz-session-confirm-delete {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 8px 8px 33px;
+  font-size: 10.5px;
+  color: var(--hermes-color-text-secondary);
+}
+.dz-session-confirm-delete .dz-session-action-destructive {
+  background: var(--hermes-color-warning);
+  color: var(--hermes-color-surface-base);
+}
+.dz-nav-spacer {
+  flex: 1;
+}
+.dz-nav-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: transparent;
+  color: var(--hermes-color-text-secondary);
+  font-size: 12px;
+}
+.dz-nav-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  flex: none;
+  background: var(--hermes-color-surface-elevated);
+  border: 1px solid var(--hermes-color-focus-ring);
+}
+
+/* --- Main workspace (Zone B) --- */
+
+.dz-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--hermes-color-canvas-app);
+}
+.dz-main-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 20px;
+}
+.dz-chat-empty,
+.dz-placeholder {
+  margin: auto;
+  max-width: 420px;
+  text-align: center;
+  color: var(--hermes-color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.dz-placeholder h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--hermes-color-text-primary);
+}
+.dz-placeholder-note {
+  font-size: 12px;
+  color: var(--hermes-color-text-disabled);
+}
+
+.dz-cua-lab {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.dz-cua-controls,
+.dz-cua-approval {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin: 20px 0;
+}
+
+.dz-cua-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.dz-cua-controls input {
+  min-width: 240px;
+}
+
+.dz-cua-evidence > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.dz-cua-evidence dt {
+  color: var(--dz-muted);
+}
+
+/* Unconfirmed terminal state is a safety signal, not a footnote: it reads as a
+   warning so an operator does not treat a stale counter as the current state. */
+.dz-cua-unknown {
+  padding: 12px 14px;
+  border: 1px solid var(--dz-warning, #b4791f);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--dz-surface-strong);
+  color: var(--dz-text);
+  line-height: 1.5;
+}
+
+.dz-cua-state,
+.dz-cua-receipt pre {
+  overflow: auto;
+  max-height: 280px;
+  padding: 14px;
+  border: 1px solid var(--dz-border);
+  border-radius: 10px;
+  background: var(--dz-surface-strong);
+}
+
+.dz-search {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.dz-search-heading h2,
+.dz-search-heading p,
+.dz-search-status p {
+  margin: 0;
+}
+
+.dz-search-heading p,
+.dz-search-status {
+  color: var(--dz-text-muted);
+}
+
+.dz-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.dz-search-form input,
+.dz-search-form button,
+.dz-search-result {
+  border: 1px solid var(--dz-border);
+  border-radius: 12px;
+  font: inherit;
+}
+
+.dz-search-form input {
+  min-width: 0;
+  padding: 11px 14px;
+  color: var(--dz-text);
+  background: var(--dz-surface-strong);
+}
+
+.dz-search-form button {
+  padding: 0 18px;
+  color: white;
+  background: var(--dz-accent);
+  cursor: pointer;
+}
+
+.dz-search-form button:disabled,
+.dz-search-result:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.dz-search-results {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dz-search-result {
+  width: 100%;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  text-align: left;
+  color: var(--dz-text);
+  background: var(--dz-surface);
+  cursor: pointer;
+}
+
+.dz-search-result:hover,
+.dz-search-result:focus-visible {
+  border-color: var(--dz-accent);
+  outline: none;
+}
+
+.dz-search-result-title {
+  font-weight: 700;
+}
+
+.dz-search-result time,
+.dz-search-result-action {
+  color: var(--dz-text-muted);
+  font-size: 0.82rem;
+}
+
+.dz-search-result-snippet {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  color: var(--dz-text-muted);
+}
+
+.dz-search-result-action {
+  grid-column: 1 / -1;
+  color: var(--dz-accent);
+}
+
+@media (max-width: 720px) {
+  .dz-search {
+    padding: 18px;
+  }
+
+  .dz-search-form {
+    grid-template-columns: 1fr;
+  }
+
+  .dz-search-form button {
+    min-height: 42px;
+  }
+}
+
+/* --- Review + Approvals --- */
+
+.dz-placeholder-approval {
+  max-width: 480px;
+  text-align: left;
+  align-items: stretch;
+}
+.dz-approval-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-elevated);
+  text-align: left;
+}
+.dz-approval-tier-badge {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--hermes-color-canvas-app, var(--hermes-color-surface-base));
+  background: var(--tier-color, var(--hermes-color-text-disabled));
+}
+.dz-approval-tier-read {
+  --tier-color: var(--hermes-color-permission-read);
+}
+.dz-approval-tier-draft {
+  --tier-color: var(--hermes-color-permission-draft);
+}
+.dz-approval-tier-write-local {
+  --tier-color: var(--hermes-color-permission-write-local);
+}
+.dz-approval-tier-external-action {
+  --tier-color: var(--hermes-color-permission-external);
+}
+.dz-approval-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.dz-approval-fields dt {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-approval-fields dd {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  color: var(--hermes-color-text-primary);
+}
+.dz-approval-actions {
+  display: flex;
+  gap: 8px;
+}
+.dz-approval-approve,
+.dz-approval-reject,
+.dz-approval-dismiss {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dz-approval-approve {
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+}
+.dz-approval-reject {
+  background: transparent;
+  border: 1px solid var(--hermes-color-border-strong);
+  color: var(--hermes-color-text-primary);
+}
+.dz-approval-dismiss {
+  background: transparent;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-approval-outcome {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--hermes-color-surface-base);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--hermes-color-text-secondary);
+}
+.dz-approval-outcome-approved {
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+}
+.dz-approval-outcome-execution {
+  margin: 0;
+  color: var(--hermes-color-warning);
+}
+.dz-approval-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+.dz-approval-list-item:hover {
+  background: var(--hermes-color-surface-elevated);
+}
+.dz-approval-list-summary {
+  font-size: 12.5px;
+  color: var(--hermes-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.dz-approval-list-status {
+  font-size: 10.5px;
+  color: var(--hermes-color-text-disabled);
+}
+
+/* Controlled Actions is a Review surface, not a second permission engine.
+   These styles distinguish the evidence stages without implying that a
+   rendered state authorized or executed anything. */
+.dz-controlled-action {
+  width: min(760px, 100%);
+  max-height: 100%;
+  margin: 0 auto;
+  padding: 24px 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.dz-controlled-action-heading,
+.dz-controlled-action-receipt-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.dz-controlled-action-heading h2,
+.dz-controlled-action-receipt-heading h3,
+.dz-controlled-action-heading p,
+.dz-controlled-action-receipt-heading p,
+.dz-controlled-action-status,
+.dz-controlled-action-example,
+.dz-controlled-action-unavailable p,
+.dz-controlled-action-decision p,
+.dz-controlled-action-message {
+  margin: 0;
+}
+.dz-controlled-action-heading h2 {
+  margin-top: 4px;
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.15;
+  color: var(--hermes-color-text-primary);
+}
+.dz-controlled-action-kicker {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-controlled-action-example,
+.dz-controlled-action-unavailable,
+.dz-controlled-action-message {
+  padding: 12px 14px;
+  border-left: 3px solid var(--hermes-color-warning);
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.dz-controlled-action-unavailable {
+  display: grid;
+  gap: 8px;
+}
+.dz-controlled-action-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--hermes-color-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+.dz-controlled-action-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--hermes-color-accent-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--hermes-color-accent-primary) 18%, transparent);
+}
+.dz-controlled-action[data-action-phase="VERIFIED"] .dz-controlled-action-status-dot {
+  background: var(--dz-success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dz-success) 18%, transparent);
+}
+.dz-controlled-action[data-action-phase="DENIED"] .dz-controlled-action-status-dot,
+.dz-controlled-action[data-action-phase="FAILED"] .dz-controlled-action-status-dot {
+  background: var(--hermes-color-warning);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--hermes-color-warning) 18%, transparent);
+}
+.dz-controlled-action-fields,
+.dz-controlled-action-receipt dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-border-subtle);
+}
+.dz-controlled-action-fields > div,
+.dz-controlled-action-receipt dl > div {
+  min-width: 0;
+  padding: 14px;
+  background: var(--hermes-color-surface-base);
+}
+.dz-controlled-action-fields dt,
+.dz-controlled-action-receipt dt {
+  margin-bottom: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-controlled-action-fields dd,
+.dz-controlled-action-receipt dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--hermes-color-text-primary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.dz-controlled-action-scope {
+  display: block;
+  margin-top: 4px;
+  color: var(--hermes-color-text-secondary);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+/*
+ * The evidence and receipt grids are fixed at three columns, so a final row
+ * that does not fill would expose the container background as an empty
+ * tinted cell. Let the last item span the remainder instead. Scoped above
+ * the collapse breakpoint: below it the grid is a single column, where a
+ * span would spill into implicit columns.
+ */
+@media (min-width: 1181px) {
+  .dz-controlled-action-fields > div:last-child:nth-child(3n + 1),
+  .dz-controlled-action-receipt dl > div:last-child:nth-child(3n + 1) {
+    grid-column: span 3;
+  }
+  .dz-controlled-action-fields > div:last-child:nth-child(3n + 2),
+  .dz-controlled-action-receipt dl > div:last-child:nth-child(3n + 2) {
+    grid-column: span 2;
+  }
+}
+
+.dz-controlled-action-decision {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid var(--hermes-color-border-strong);
+  background: var(--hermes-color-surface-decision);
+}
+.dz-controlled-action-decision p {
+  max-width: 460px;
+  color: var(--hermes-color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.dz-controlled-action-decision > div {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+.dz-controlled-action-decision button {
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid var(--hermes-color-border-strong);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--hermes-color-text-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.dz-controlled-action-decision button:first-child {
+  border-color: var(--hermes-color-accent-primary);
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+}
+.dz-controlled-action-decision button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.dz-controlled-action-message.is-error {
+  border-left-color: var(--hermes-color-error);
+  color: var(--hermes-color-error);
+}
+.dz-controlled-action-receipt {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--hermes-color-border-strong);
+  background: var(--hermes-color-surface-elevated);
+}
+.dz-controlled-action-receipt-heading h3 {
+  margin-top: 4px;
+  font-size: 17px;
+  color: var(--hermes-color-text-primary);
+}
+.dz-controlled-action-receipt-heading > span {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--dz-success);
+}
+.dz-controlled-action-receipt dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dz-controlled-action-lifecycle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: controlled-action-stage;
+}
+.dz-controlled-action-lifecycle li {
+  counter-increment: controlled-action-stage;
+  padding: 6px 9px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  border-radius: 999px;
+  color: var(--hermes-color-text-muted);
+  font-size: 10.5px;
+}
+.dz-controlled-action-lifecycle li::before {
+  content: counter(controlled-action-stage) ". ";
+  color: var(--hermes-color-accent-primary);
+  font-weight: 800;
+}
+
+@media (max-width: 1180px) {
+  .dz-controlled-action {
+    padding: 20px;
+  }
+  .dz-controlled-action-fields,
+  .dz-controlled-action-receipt dl {
+    grid-template-columns: 1fr;
+  }
+  .dz-controlled-action-decision {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+.dz-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  min-height: 0;
+}
+.dz-chat-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dz-chat-status-note {
+  font-size: 11.5px;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-chat-banner {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: 1px solid var(--hermes-color-border-subtle);
+}
+.dz-chat-banner code {
+  background: var(--hermes-color-surface-elevated);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.dz-chat-banner-unavailable {
+  color: var(--hermes-color-warning);
+  border-color: rgba(253, 230, 138, 0.35);
+}
+.dz-chat-banner-error {
+  color: var(--hermes-color-error);
+  border-color: rgba(253, 164, 175, 0.35);
+}
+.dz-chat-banner-fallback {
+  color: var(--hermes-color-text-secondary);
+  border-color: var(--hermes-color-warning);
+}
+.dz-routing-provenance-violation,
+.dz-routing-provenance-error,
+.dz-routing-error {
+  color: var(--hermes-color-error);
+}
+.dz-routing-controls {
+  flex: none;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  border-radius: 12px;
+  background: var(--hermes-color-surface-base);
+}
+.dz-routing-description {
+  margin: 0;
+  flex-basis: 100%;
+  color: var(--hermes-color-text-muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.dz-routing-description strong {
+  color: var(--hermes-color-text-primary);
+  letter-spacing: 0.04em;
+}
+.dz-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+.dz-chat-empty-inline {
+  color: var(--hermes-color-text-muted);
+  font-size: 13px;
+}
+.dz-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.dz-bubble p {
+  margin: 0;
+}
+.dz-bubble-assistant {
+  align-self: flex-start;
+  background: var(--hermes-color-surface-base);
+  color: var(--hermes-color-text-primary);
+  border-bottom-left-radius: 4px;
+}
+.dz-bubble-user {
+  align-self: flex-end;
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+  border-bottom-right-radius: 4px;
+}
+.dz-bubble-thinking {
+  color: var(--hermes-color-text-muted);
+}
+.dz-bubble-labels {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+/* Mirrors .bubble-label in styles.css (mobile ChatBubble) exactly. */
+.dz-bubble-label {
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--hermes-color-text-muted);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.dz-composer {
+  flex: none;
+  display: flex;
+  gap: 8px;
+}
+.dz-route-control {
+  flex: none;
+  display: grid;
+  gap: 4px;
+  color: var(--hermes-color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.dz-model-control { min-width: min(360px, 100%); }
+.dz-route-control select {
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-primary);
+  padding: 8px 28px 8px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.dz-route-control select:focus-visible {
+  outline: 2px solid var(--hermes-color-focus-ring);
+  outline-offset: 2px;
+}
+.dz-composer input {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-input);
+  color: var(--hermes-color-text-primary);
+  padding: 10px 12px;
+  font-size: 13.5px;
+}
+.dz-composer input:disabled {
+  opacity: 0.6;
+}
+.dz-composer button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+.dz-composer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Right rail (Zone C) --- */
+
+.dz-rail {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-base);
+  overflow: hidden;
+}
+.dz-rail-tabs {
+  flex: none;
+  display: flex;
+  border-bottom: 1px solid var(--hermes-color-border-subtle);
+}
+.dz-rail-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-text-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 11px 4px;
+  border-bottom: 2px solid transparent;
+}
+.dz-rail-tab.is-active {
+  color: var(--hermes-color-text-primary);
+  border-bottom-color: var(--hermes-color-accent-primary);
+}
+.dz-rail-panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dz-rail-empty {
+  font-size: 13px;
+  color: var(--hermes-color-text-secondary);
+  margin: 0;
+}
+.dz-rail-hint {
+  font-size: 12px;
+  color: var(--hermes-color-text-disabled);
+  line-height: 1.5;
+  margin: 0;
+}
+.dz-rail-hint-error {
+  color: var(--hermes-color-error);
+}
+.dz-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.dz-file-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  border-radius: 10px;
+  border: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-primary);
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dz-file-add-button:hover {
+  background: var(--hermes-color-accent-primary);
+  color: var(--hermes-color-text-on-accent);
+}
+.dz-file-input:focus-visible + .dz-file-add-button,
+.dz-file-input:focus-visible ~ .dz-file-admitted .dz-file-add-button {
+  outline: 2px solid var(--hermes-color-focus-ring);
+  outline-offset: 2px;
+}
+.dz-file-admitted {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dz-file-admitted-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.dz-file-preview {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.dz-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dz-file-remove-button {
+  border: none;
+  background: transparent;
+  color: var(--hermes-color-error);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 0;
+}
+.dz-context-source {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--hermes-color-surface-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dz-context-source-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+  overflow-wrap: anywhere;
+}
+.dz-composer-attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-secondary);
+  font-size: 12px;
+}
+.dz-composer-attachment-icon {
+  flex: none;
+}
+
+/* --- Activity dock (Zone D) --- */
+
+.dz-dock {
+  flex: none;
+  height: var(--dz-dock-h);
+  min-height: 0;
+  overflow: hidden;
+  border-top: 1px solid var(--hermes-color-border-subtle);
+  background: var(--hermes-color-surface-base);
+  display: flex;
+  flex-direction: column;
+  transition: height var(--hermes-motion-deliberate) var(--hermes-ease-standard);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dz-dock {
+    transition: none;
+  }
+}
+.dz-dock-header {
+  flex: none;
+  padding: 6px 18px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-dock-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 10px;
+  padding: 0 18px 10px;
+  overflow-x: auto;
+  align-items: flex-start;
+}
+.dz-dock-empty {
+  color: var(--hermes-color-text-disabled);
+  font-size: 12.5px;
+  padding: 4px 0;
+}
+.dz-dock-entry {
+  flex: none;
+  width: 268px;
+  border-radius: 10px;
+  padding: 8px 11px;
+  background: var(--hermes-color-surface-elevated);
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 2px;
+  align-items: baseline;
+}
+.dz-dock-entry-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+}
+.dz-dock-entry-detail {
+  margin: 0;
+  font-size: 11px;
+  color: var(--hermes-color-text-secondary);
+  line-height: 1.4;
+}
+.dz-dock-tag {
+  align-self: flex-start;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--hermes-color-text-on-accent);
+}
+.dz-dock-tag-prototype {
+  background: var(--hermes-color-unavailable);
+}
+.dz-dock-tag-example {
+  background: var(--hermes-color-warning);
+}
+.dz-dock-tag-designed {
+  background: var(--hermes-color-permission-draft);
+}
+.dz-dock-tag-unavailable {
+  background: var(--hermes-color-text-disabled);
+}
+.dz-dock-tag-error {
+  background: var(--hermes-color-error);
+  color: var(--hermes-color-canvas-app);
+}
+
+/* --- Utility --- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dz-unsupported {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  background: var(--hermes-color-canvas-app);
+  color: var(--hermes-color-text-primary);
+}
+.dz-unsupported-card {
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dz-unsupported-card a {
+  color: var(--hermes-color-accent-primary);
+  font-weight: 700;
+}
+
+/* --- Responsive: progressive collapse per the Experience Contract §20 ---
+   xl (1280px+): full four-zone workspace.
+   lg (1024–1279px): right rail collapses to an overlay-width column first.
+   below lg (<1024px): the desktop shell is out of scope; show the
+   sub-1024 fallback instead of a squeezed layout. */
+
+@media (max-width: 1279px) {
+  .dz-shell:not([data-layout="focus"]) {
+    --dz-rail-w: 264px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .dz-shell {
+    display: none;
+  }
+  .dz-unsupported {
+    display: flex;
+  }
+}
+
+/* Knowledge Inspector remains a Zone C surface; Zone B is reserved for graph exploration. */
+.kc-inspector-zone-c {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  font-size: 12.5px;
+}
+.kc-inspector-zone-c-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.kc-inspector-zone-c-heading { display: flex; gap: 10px; min-width: 0; }
+.kc-inspector-node-glyph { flex: none; width: 20px; height: 20px; margin-top: 1px; }
+.kc-inspector-zone-c-heading-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.kc-inspector-zone-c-title { font-size: 14px; font-weight: 700; line-height: 1.2; color: var(--hermes-color-text-primary); }
+.kc-inspector-zone-c-state,
+.kc-inspector-zone-c-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hermes-color-text-disabled); }
+.kc-inspector-zone-c-close { border: none; border-radius: 6px; padding: 2px 6px; background: transparent; color: var(--hermes-color-text-muted); font-size: 18px; cursor: pointer; }
+.kc-inspector-zone-c-close:hover { background: var(--hermes-color-surface-elevated); color: var(--hermes-color-text-primary); }
+.kc-inspector-zone-c-body { display: flex; flex-direction: column; }
+.kc-inspector-zone-c-field { display: flex; flex-direction: column; gap: 5px; }
+.kc-inspector-zone-c-meta-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.kc-inspector-zone-c-provenance { padding-top: 14px; }
+.kc-inspector-zone-c-description { padding: 16px 0 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.kc-inspector-zone-c-relationship-field { gap: 8px; padding-top: 14px; }
+.kc-inspector-zone-c-value,
+.kc-inspector-rel-node { color: var(--hermes-color-text-secondary); line-height: 1.5; }
+.kc-inspector-rel-node + .kc-inspector-rel-node { border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 7px; }
+.kc-inspector-badge,
+.kc-inspector-permission { align-self: flex-start; display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+.kc-inspector-badge-known { background: rgba(134, 239, 172, 0.15); color: #86efac; }
+.kc-inspector-badge-derived { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.kc-inspector-badge-related { background: rgba(147, 197, 253, 0.15); color: #93c5fd; }
+.kc-inspector-permission { border: 1px solid var(--hermes-color-border-subtle); color: var(--hermes-color-text-muted); }
+@media (max-width: 1279px) and (min-width: 1024px) { .kc-inspector-zone-c-meta-grid { grid-template-columns: 1fr; } }
+
+/* ==========================================================================
+   V1 Home — YUZUKI-V1-CORE-UX-SPRINT-001
+   Composition rule for this surface: no card containers. Hierarchy comes
+   from type scale, generous vertical rhythm and one horizon. A grid of
+   identical rounded boxes is what turns a personal workspace into a
+   dashboard, so it is deliberately absent here.
+   All colour comes from the existing --hermes-color-* tokens; the alpha
+   ramps below are derived from those same tokens, not new hues. Accent
+   meaning stays consistent: teal reads as context/knowledge, pink as action.
+   ========================================================================== */
+
+.dz-shell[data-rail="hidden"] {
+  --dz-rail-w: 0px;
+}
+
+.dz-home {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 46px;
+  padding: 12px 6px 48px;
+  max-width: 1100px;
+}
+
+/* --- Hero: greeting, one-line context summary, command entry --- */
+
+.dz-home-greeting {
+  margin: 0;
+  font-size: clamp(30px, 3.2vw, 42px);
+  font-weight: 300;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+  color: var(--hermes-color-text-primary);
+}
+.dz-home-summary {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--hermes-color-text-secondary);
+  max-width: 62ch;
+}
+.dz-home-command {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+  padding-bottom: 10px;
+  max-width: 720px;
+  border-bottom: 1px solid var(--hermes-color-border-strong);
+  transition: border-color var(--hermes-motion-standard) var(--hermes-ease-standard);
+}
+.dz-home-command:focus-within {
+  border-bottom-color: var(--hermes-color-accent-secondary);
+}
+.dz-home-command input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  padding: 10px 0;
+  font: inherit;
+  font-size: 17px;
+  color: var(--hermes-color-text-primary);
+}
+.dz-home-command input::placeholder {
+  color: var(--hermes-color-text-disabled);
+}
+/* The input carries no box of its own, so the visible focus indicator is
+   this ring plus the rule beneath it — focus is never shown by colour
+   alone. */
+.dz-home-command input:focus-visible {
+  outline: 2px solid var(--hermes-color-focus-ring);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+.dz-home-command input:disabled {
+  color: var(--hermes-color-text-disabled);
+}
+.dz-home-command-go {
+  flex: none;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--hermes-color-text-on-accent);
+  background: var(--hermes-color-accent-primary);
+  min-height: 44px;
+}
+.dz-home-command-go:disabled {
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-disabled);
+}
+.dz-home-command-hint {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--hermes-color-text-muted);
+}
+
+/* --- Today --- */
+
+.dz-home-today h2,
+.dz-home-recent h2,
+.dz-constellation-head h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--hermes-color-text-secondary);
+}
+.dz-today-rows {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+.dz-today-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 200px) 96px 1fr;
+  gap: 18px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hermes-color-divider);
+}
+.dz-today-label {
+  font-size: 14px;
+  color: var(--hermes-color-text-primary);
+}
+.dz-today-value {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--hermes-color-text-primary);
+}
+.dz-today-detail {
+  font-size: 13px;
+  color: var(--hermes-color-text-muted);
+  line-height: 1.45;
+}
+/* State is carried by the rendered word as well as by colour. */
+.dz-today-row-empty .dz-today-value {
+  color: var(--hermes-color-text-muted);
+  font-weight: 600;
+}
+.dz-today-row-degraded .dz-today-value {
+  color: var(--hermes-color-warning);
+}
+.dz-today-row-unavailable .dz-today-value {
+  color: var(--hermes-color-unavailable);
+}
+.dz-today-absent-title {
+  margin: 22px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hermes-color-text-muted);
+}
+.dz-today-absent {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+}
+.dz-today-absent li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-today-absent-state {
+  font-size: 11.5px;
+  color: var(--hermes-color-unavailable);
+}
+
+/* --- Knowledge preview: the constellation --- */
+
+.dz-constellation-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--hermes-color-text-muted);
+  max-width: 62ch;
+}
+.dz-constellation-field {
+  position: relative;
+  height: 200px;
+  margin-top: 18px;
+  border-radius: 16px;
+  background:
+    radial-gradient(130% 100% at 50% 108%, rgba(94, 234, 212, 0.1), transparent 62%),
+    radial-gradient(90% 130% at 12% -20%, rgba(192, 132, 252, 0.12), transparent 68%);
+}
+.dz-constellation-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.dz-constellation-horizon {
+  fill: none;
+  stroke: var(--hermes-color-border-strong);
+  stroke-width: 1;
+}
+.dz-constellation-path {
+  fill: none;
+  stroke: var(--hermes-color-assistant);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.26;
+}
+.dz-constellation-state {
+  position: absolute;
+  inset: 0;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 0 32px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--hermes-color-text-muted);
+  max-width: 46ch;
+}
+.dz-constellation-stars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dz-constellation-stars > li {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  animation: dz-star-in 420ms var(--hermes-ease-standard) both;
+  animation-delay: calc(var(--dz-star-i, 0) * 45ms);
+}
+@keyframes dz-star-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -42%) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+.dz-star {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+.dz-star-dot {
+  display: block;
+  border-radius: 999px;
+  background: var(--hermes-color-assistant);
+  box-shadow: 0 0 12px rgba(94, 234, 212, 0.45);
+  transition: transform var(--hermes-motion-fast) var(--hermes-ease-standard);
+}
+.dz-star:hover .dz-star-dot,
+.dz-star:focus-visible .dz-star-dot {
+  transform: scale(1.45);
+}
+.dz-star:focus-visible {
+  outline: 2px solid var(--hermes-color-focus-ring);
+  outline-offset: 2px;
+}
+.dz-star:disabled {
+  cursor: default;
+}
+.dz-star-tip {
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: var(--hermes-color-surface-elevated);
+  border: 1px solid var(--hermes-color-border-subtle);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity var(--hermes-motion-fast) var(--hermes-ease-standard);
+}
+.dz-star:hover .dz-star-tip,
+.dz-star:focus-visible .dz-star-tip {
+  opacity: 1;
+}
+.dz-star-tip-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+}
+.dz-star-tip-meta {
+  font-size: 11px;
+  color: var(--hermes-color-text-muted);
+}
+.dz-constellation-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--hermes-color-text-disabled);
+}
+.dz-constellation-legend {
+  color: var(--hermes-color-text-muted);
+}
+.dz-constellation-absent {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+}
+.dz-constellation-absent li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+.dz-constellation-absent-label {
+  color: var(--hermes-color-text-disabled);
+}
+.dz-constellation-absent-state {
+  font-size: 11.5px;
+  color: var(--hermes-color-unavailable);
+}
+
+/* --- Recent conversations: the text equivalent of the constellation --- */
+
+.dz-home-recent-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dz-home-text-action {
+  border: none;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hermes-color-accent-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dz-home-empty {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--hermes-color-text-muted);
+}
+.dz-home-recent-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.dz-home-recent-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 18px;
+  align-items: baseline;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 12px 10px;
+  margin-left: -10px;
+  border-radius: 10px;
+  border-bottom: 1px solid var(--hermes-color-divider);
+  min-height: 44px;
+}
+.dz-home-recent-item:hover:not(:disabled) {
+  background: var(--hermes-color-surface-base);
+}
+.dz-home-recent-title {
+  font-size: 14px;
+  color: var(--hermes-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-home-recent-meta {
+  font-size: 12px;
+  color: var(--hermes-color-text-muted);
+  white-space: nowrap;
+}
+.dz-home-recent-open {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--hermes-color-accent-secondary);
+  white-space: nowrap;
+}
+.dz-home-recent-item:disabled .dz-home-recent-open {
+  color: var(--hermes-color-text-disabled);
+}
+
+/* --- Activity dock: a status strip, not a log terminal --- */
+
+.dz-dock-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.dz-dock-title {
+  flex: none;
+}
+.dz-dock-latest {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--hermes-color-text-secondary);
+}
+.dz-dock-latest-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-dock-latest-state {
+  color: var(--hermes-color-text-muted);
+  font-weight: 500;
+}
+.dz-dock-dot {
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--hermes-color-text-disabled);
+}
+.dz-dock-dot-prototype {
+  background: var(--dz-success);
+}
+.dz-dock-dot-designed {
+  background: var(--hermes-color-permission-draft);
+}
+.dz-dock-dot-unavailable {
+  background: var(--hermes-color-unavailable);
+}
+.dz-dock-dot-error {
+  background: var(--hermes-color-error);
+}
+.dz-dock-entry-title {
+  grid-column: 2;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hermes-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-dock-entry-detail {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 11px;
+  color: var(--hermes-color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dz-dock-entry-state {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--hermes-color-text-muted);
+}
+.dz-dock-entry-time {
+  grid-column: 3;
+  grid-row: 2;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hermes-color-text-disabled);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Equivalent information state, no movement: the stars are simply
+     already there, at full opacity. */
+  .dz-constellation-stars > li {
+    animation: none;
+  }
+  .dz-star-dot,
+  .dz-star-tip,
+  .dz-home-command {
+    transition: none;
+  }
+  .dz-star:hover .dz-star-dot,
+  .dz-star:focus-visible .dz-star-dot {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Correction pass 1 — YUZUKI-V1-CORE-UX-SPRINT-001
+   Findings from the first rendered review at 1440 and 1024.
+   ========================================================================== */
+
+/* (4) Every session row previously showed Rename / Archive / Delete at all
+   times: three text buttons per row, repeated down the whole nav, with a
+   destructive action permanently one click away. They now appear on hover or
+   when anything inside the row takes focus, so keyboard users still reach
+   them in normal tab order and nothing becomes unreachable. */
+.dz-session-actions {
+  opacity: 0;
+  transition: opacity var(--hermes-motion-fast) var(--hermes-ease-standard);
+}
+.dz-session-row:hover .dz-session-actions,
+.dz-session-row:focus-within .dz-session-actions {
+  opacity: 1;
+}
+/* The delete confirmation is a consequential state — never fade it. */
+.dz-session-confirm-delete {
+  opacity: 1;
+}
+
+/* (5) The layout segmented control's active state was a filled accent, which
+   made window-layout chrome the loudest element on screen and put it in
+   direct competition with the actual primary action. Accent fill is now
+   reserved for real actions; the active segment reads as an elevated
+   surface with primary-weight text. */
+.dz-segment-btn.is-active {
+  background: var(--hermes-color-surface-elevated);
+  color: var(--hermes-color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--hermes-color-border-subtle);
+}
+/* The theme dots stay colour-swatch controls; only their ring marks state. */
+.dz-segment-btn.dz-theme-dot.is-active {
+  background: none;
+  box-shadow: none;
+}
+
+/* (6) An empty Activity dock held 108px of dead space under every fresh
+   Home. With nothing to report it collapses to its own header line. */
+.dz-dock.is-empty {
+  height: auto;
+}
+.dz-dock.is-empty .dz-dock-list {
+  padding-bottom: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-session-actions {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Correction pass 2 — YUZUKI-V1-CORE-UX-SPRINT-001
+   Found by exercising a pending approval: once the rail became contextual, a
+   decision raised mid-conversation had no entry point from Chat. Chat now
+   gains a Review tab while something is genuinely awaiting review, and the
+   nav carries the count so the signal survives wherever the user is.
+   ========================================================================== */
+
+.dz-nav-item {
+  position: relative;
+}
+.dz-nav-badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  /* Decision-tier colour, matching the permission language used on the
+     approval surfaces themselves rather than a generic alert red. */
+  background: var(--hermes-color-permission-draft);
+  color: var(--hermes-color-text-on-accent);
+}
+/* In the collapsed rail layouts the label is hidden, so the badge rides the
+   icon instead of sitting in a row that no longer exists. */
+.dz-shell[data-layout="companion"] .dz-nav-badge,
+.dz-shell[data-layout="focus"] .dz-nav-badge,
+.dz-shell[data-layout="review"] .dz-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  margin-left: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+}

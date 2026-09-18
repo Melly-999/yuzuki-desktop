@@ -1,0 +1,4 @@
+# Tauri build artifacts (Cargo + codegen)
+target/
+gen/
+WixTools/

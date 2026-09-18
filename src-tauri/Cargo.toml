@@ -1,0 +1,36 @@
+[package]
+name = "yuzuki"
+version = "0.1.0"
+description = "Yuzuki Desktop - Personal AI Companion"
+authors = ["Yuzuki Team"]
+license = "MIT"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0", features = ["default", "webview-data-url"] }
+tauri-plugin-opener = "2.0"
+
+[target.'cfg(windows)'.dependencies]
+# Used only to assign the owned Node child (and, by kernel-enforced Job
+# Object inheritance, every process it transitively spawns) to a Job Object
+# at spawn time, so the whole tree can be reliably killed on close even after
+# an intermediate process (Hermes's re-exec launcher) has already exited and
+# broken the ParentProcessId chain that `taskkill /T` depends on.
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# and the built-in dev server is disabled.
+# If you use cargo directly instead of the Tauri CLI you can use this feature flag to
+# switch between Tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
+cua-fixture = []

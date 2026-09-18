@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Yuzuki",
+  "version": "0.1.0",
+  "identifier": "com.yuzuki.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Yuzuki Team",
+    "copyright": "Copyright © 2026 Mateusz Ozimkiewicz",
+    "shortDescription": "Yuzuki Desktop - Personal AI Companion",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../server/index.mjs": "server/index.mjs",
+      "../server/router.mjs": "server/router.mjs",
+      "../server/lib/*.mjs": "server/lib/",
+      "../server/routes/*.mjs": "server/routes/"
+    },
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}
