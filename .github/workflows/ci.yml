@@ -39,9 +39,15 @@ jobs:
 
       - name: Server tests
         run: node --test server/tests/*.test.mjs
+        env:
+          NODE_OPTIONS: --no-warnings
 
       - name: Frontend contract tests
         run: node --test src/desktop/*.test.mjs
+        env:
+          NODE_OPTIONS: --no-warnings
 
       - name: Screenshot route boundary tests
         run: node --test tests/showcase/verify-screenshot-route-boundary.mjs
+        env:
+          NODE_OPTIONS: --no-warnings
