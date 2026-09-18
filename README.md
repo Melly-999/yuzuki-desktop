@@ -13,6 +13,10 @@ the turn rather than substituting a cloud model**.
 
 ## Status
 
+**Public distribution status: source only.** This repository currently
+publishes source code only; no Yuzuki Windows installer or downloadable binary
+is published from this snapshot.
+
 **V1.1.** The local chat path is live-verified end to end; most other
 capabilities are deliberately not implemented. This README states which is
 which, because the repository's own product-truth module
